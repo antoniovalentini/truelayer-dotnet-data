@@ -15,7 +15,7 @@ public record DataAccount
     public string DisplayName { get; init; } = string.Empty;
     public string Currency { get; init; } = string.Empty;
     public DataAccountNumber AccountNumber { get; init; } = new();
-    public Provider Provider { get; init; } = new();
+    public DataProvider Provider { get; init; } = new();
 }
 
 public record DataAccountNumber
@@ -26,7 +26,7 @@ public record DataAccountNumber
     public string SwiftBic { get; init; } = string.Empty;
 }
 
-public record Provider
+public record DataProvider
 {
     public string ProviderId { get; init; } = string.Empty;
 }
