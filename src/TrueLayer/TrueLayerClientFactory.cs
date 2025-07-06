@@ -1,8 +1,8 @@
 using System;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using TrueLayer.Auth;
 using TrueLayer.Caching;
+using TrueLayer.Data;
 using TrueLayer.Mandates;
 using TrueLayer.MerchantAccounts;
 using TrueLayer.Payments;
@@ -33,6 +33,7 @@ namespace TrueLayer
             return new TrueLayerClient(
                 auth,
                 new Lazy<IPaymentsApi>(() => new PaymentsApi(_apiClient, auth, options)),
+                new Lazy<IDataApi>(() => new DataApi(_apiClient, options)),
                 new Lazy<IPaymentsProvidersApi>(() => new PaymentsProvidersApi(_apiClient, auth, options)),
                 new Lazy<IPayoutsApi>(() => new PayoutsApi(_apiClient, auth, options)),
                 new Lazy<IMerchantAccountsApi>(() => new MerchantAccountsApi(_apiClient, auth, options)),
@@ -47,6 +48,7 @@ namespace TrueLayer
             return new TrueLayerClient(
                 decoratedAuthApi,
                 new Lazy<IPaymentsApi>(() => new PaymentsApi(_apiClient, decoratedAuthApi, options)),
+                new Lazy<IDataApi>(() => new DataApi(_apiClient, options)),
                 new Lazy<IPaymentsProvidersApi>(() => new PaymentsProvidersApi(_apiClient, decoratedAuthApi, options)),
                 new Lazy<IPayoutsApi>(() => new PayoutsApi(_apiClient, decoratedAuthApi, options)),
                 new Lazy<IMerchantAccountsApi>(() => new MerchantAccountsApi(_apiClient, decoratedAuthApi, options)),

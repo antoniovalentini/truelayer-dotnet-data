@@ -1,5 +1,6 @@
 using System;
 using TrueLayer.Auth;
+using TrueLayer.Data;
 using TrueLayer.MerchantAccounts;
 using TrueLayer.Payments;
 using TrueLayer.PaymentsProviders;
@@ -12,15 +13,17 @@ namespace TrueLayer
     {
         // APIs that require specific configuration should be lazily initialised
         private readonly Lazy<IPaymentsApi> _payments;
+        private readonly Lazy<IDataApi> _data;
         private readonly Lazy<IPaymentsProvidersApi> _paymentsProviders;
         private readonly Lazy<IPayoutsApi> _payouts;
         private readonly Lazy<IMerchantAccountsApi> _merchants;
         private readonly Lazy<IMandatesApi> _mandates;
 
-        public TrueLayerClient(IAuthApi auth, Lazy<IPaymentsApi> payments, Lazy<IPaymentsProvidersApi> paymentsProviders, Lazy<IPayoutsApi> payouts, Lazy<IMerchantAccountsApi> merchants, Lazy<IMandatesApi> mandates)
+        public TrueLayerClient(IAuthApi auth, Lazy<IPaymentsApi> payments, Lazy<IDataApi> data, Lazy<IPaymentsProvidersApi> paymentsProviders, Lazy<IPayoutsApi> payouts, Lazy<IMerchantAccountsApi> merchants, Lazy<IMandatesApi> mandates)
         {
             Auth = auth;
             _payments = payments;
+            _data = data;
             _paymentsProviders = paymentsProviders;
             _payouts = payouts;
             _merchants = merchants;
@@ -30,6 +33,7 @@ namespace TrueLayer
 
         public IAuthApi Auth { get; }
         public IPaymentsApi Payments => _payments.Value;
+        public IDataApi Data => _data.Value;
         public IPaymentsProvidersApi PaymentsProviders => _paymentsProviders.Value;
         public IPayoutsApi Payouts => _payouts.Value;
         public IMerchantAccountsApi MerchantAccounts => _merchants.Value;
