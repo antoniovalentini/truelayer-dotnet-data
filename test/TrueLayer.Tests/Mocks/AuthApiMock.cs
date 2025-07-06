@@ -22,4 +22,9 @@ public class AuthApiMock : IAuthApi
     {
         return new ValueTask<ApiResponse<GetAuthTokenResponse>>(_response!);
     }
+
+    public ValueTask<ApiResponse<ExchangeCodeResponse>> ExchangeCode(ExchangeCodeRequest exchangeCodeRequest, CancellationToken cancellationToken = default)
+    {
+        throw new System.NotImplementedException();
+    }
 }

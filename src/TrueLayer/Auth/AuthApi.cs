@@ -40,5 +40,29 @@ namespace TrueLayer.Auth
             return await _apiClient.PostAsync<GetAuthTokenResponse>(
                 _baseUri.Append(AuthEndpoints.Token), new FormUrlEncodedContent(values), null, cancellationToken);
         }
+
+        public async ValueTask<ApiResponse<ExchangeCodeResponse>> ExchangeCode(
+            ExchangeCodeRequest exchangeCodeRequest,
+            CancellationToken cancellationToken = default)
+        {
+            exchangeCodeRequest.NotNull(nameof(exchangeCodeRequest));
+            exchangeCodeRequest.Code.NotEmptyOrWhiteSpace(nameof(exchangeCodeRequest.Code));
+            exchangeCodeRequest.RedirectUri.NotEmptyOrWhiteSpace(nameof(exchangeCodeRequest.RedirectUri));
+
+            var values = new List<KeyValuePair<string?, string?>>
+            {
+                new ("grant_type", "authorization_code"),
+                new ("client_id", _options.ClientId),
+                new ("client_secret", _options.ClientSecret),
+                new ("redirect_uri", exchangeCodeRequest.RedirectUri),
+                new ("code", exchangeCodeRequest.Code),
+            };
+
+            return await _apiClient.PostAsync<ExchangeCodeResponse>(
+                _baseUri.Append(AuthEndpoints.Token),
+                new FormUrlEncodedContent(values),
+                null,
+                cancellationToken);
+        }
     }
 }

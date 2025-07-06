@@ -45,5 +45,13 @@ namespace TrueLayer.Auth
 
             return authTokenResponse;
         }
+
+        public async ValueTask<ApiResponse<ExchangeCodeResponse>> ExchangeCode(
+            ExchangeCodeRequest exchangeCodeRequest,
+            CancellationToken cancellationToken = default)
+        {
+            // TODO: Implement caching for ExchangeCodeResponse if needed
+            return await _client.ExchangeCode(exchangeCodeRequest, cancellationToken);
+        }
     }
 }
