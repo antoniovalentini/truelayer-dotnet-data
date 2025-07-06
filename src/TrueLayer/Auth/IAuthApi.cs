@@ -17,4 +17,5 @@ public interface IAuthApi
     ValueTask<ApiResponse<GetAuthTokenResponse>> GetAuthToken(GetAuthTokenRequest authTokenRequest, CancellationToken cancellationToken = default);
 
     ValueTask<ApiResponse<ExchangeCodeResponse>> ExchangeCode(ExchangeCodeRequest exchangeCodeRequest, CancellationToken cancellationToken = default);
+    ValueTask<ApiResponse<ExchangeCodeResponse>> RefreshToken(string refreshToken, CancellationToken cancellationToken = default);
 }

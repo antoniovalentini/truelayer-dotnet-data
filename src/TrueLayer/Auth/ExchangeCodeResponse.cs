@@ -15,7 +15,7 @@ public record ExchangeCodeResponse
     /// <summary>
     /// The lifetime in seconds of the access token
     /// </summary>
-    public string ExpiresIn { get; init; } = string.Empty;
+    public long ExpiresIn { get; init; }
 
     public string RefreshToken { get; set; } = string.Empty;
 }

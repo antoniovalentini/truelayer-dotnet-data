@@ -27,4 +27,9 @@ public class AuthApiMock : IAuthApi
     {
         throw new System.NotImplementedException();
     }
+
+    public ValueTask<ApiResponse<ExchangeCodeResponse>> RefreshToken(string refreshToken, CancellationToken cancellationToken = default)
+    {
+        throw new System.NotImplementedException();
+    }
 }
