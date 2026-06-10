@@ -1,31 +1,69 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net9.0;net8.0;netstandard2.1</TargetFrameworks>
+        <TargetFrameworks>net10.0;net9.0;net8.0</TargetFrameworks>
         <RootNamespace>TrueLayer</RootNamespace>
         <AssemblyName>TrueLayer.Client</AssemblyName>
         <PackageId>TrueLayer.Client</PackageId>
-        <Description>.NET client for the TrueLayer API</Description>
-        <PackageIcon>icon.png</PackageIcon>
-        <LangVersion>10.0</LangVersion>
-        <Authors>TrueLayer</Authors>
-        <Company>TrueLayer</Company>
-        <RepositoryUrl>https://github.com/TrueLayer/truelayer-dotnet</RepositoryUrl>
+        <LangVersion>12.0</LangVersion>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <!-- Source Link: Enable debugging into the source code -->
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <!-- Deterministic builds -->
+        <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     </PropertyGroup>
+
+    <PropertyGroup Label="Package info">
+        <Description>.NET client for the TrueLayer API</Description>
+        <Copyright>© TrueLayer Ltd. 2025</Copyright>
+        <PackageTags>truelayer;payments;banking;open-banking;api-client;fintech</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageReleaseNotes>https://github.com/TrueLayer/truelayer-dotnet/releases</PackageReleaseNotes>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <!-- Common dependencies -->
     <ItemGroup>
+        <PackageReference Include="OneOf" Version="3.0.271"/>
+        <PackageReference Include="TrueLayer.Signing" Version="0.2.4" />
+
+        <!-- Source Link support for GitHub -->
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    </ItemGroup>
+
+    <!-- .NET 10.0 dependencies -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.0"/>
+    </ItemGroup>
+
+    <!-- .NET 9.0 dependencies -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.11"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.11"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.11"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11"/>
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.11"/>
+    </ItemGroup>
+
+    <!-- .NET 8.0 dependencies -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0"/>
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2"/>
         <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1"/>
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1"/>
-        <PackageReference Include="OneOf" Version="3.0.271"/>
-        <PackageReference Include="TrueLayer.Signing" Version="0.1.15"/>
     </ItemGroup>
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
-        <PackageReference Include="System.Text.Json" Version="5.0.2"/>
-        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
-        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    </ItemGroup>
+
     <ItemGroup>
         <None Include="..\shared\icon.png" Pack="true" PackagePath="\"/>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 </Project>

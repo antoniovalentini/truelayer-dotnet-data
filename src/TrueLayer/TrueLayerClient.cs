@@ -29,7 +29,7 @@ namespace TrueLayer
             _merchants = merchants;
             _mandates = mandates;
 
-        }
+    }
 
         public IAuthApi Auth { get; }
         public IPaymentsApi Payments => _payments.Value;

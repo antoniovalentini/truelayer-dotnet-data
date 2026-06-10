@@ -5,19 +5,19 @@ using TrueLayer.Payments;
 using TrueLayer.PaymentsProviders;
 using TrueLayer.Payouts;
 
-namespace TrueLayer
-{
-    using TrueLayer.Mandates;
+namespace TrueLayer;
 
+using TrueLayer.Mandates;
+
+/// <summary>
+/// Provides access to TrueLayer APIs
+/// </summary>
+public interface ITrueLayerClient
+{
     /// <summary>
-    /// Provides access to TrueLayer APIs
+    /// Gets the Authorization API resource
     /// </summary>
-    public interface ITrueLayerClient
-    {
-        /// <summary>
-        /// Gets the Authorization API resource
-        /// </summary>
-        IAuthApi Auth { get; }
+    IAuthApi Auth { get; }
 
         /// <summary>
         /// Gets the Payments API resource
@@ -25,24 +25,23 @@ namespace TrueLayer
         IPaymentsApi Payments { get; }
         IDataApi Data { get; }
 
-        /// <summary>
-        /// Gets the Payments Providers API resource
-        /// </summary>
-        IPaymentsProvidersApi PaymentsProviders { get; }
+    /// <summary>
+    /// Gets the Payments Providers API resource
+    /// </summary>
+    IPaymentsProvidersApi PaymentsProviders { get; }
 
-        /// <summary>
-        /// Gets the Payouts API resource
-        /// </summary>
-        IPayoutsApi Payouts { get; }
+    /// <summary>
+    /// Gets the Payouts API resource
+    /// </summary>
+    IPayoutsApi Payouts { get; }
 
-        /// <summary>
-        /// Gets the Merchant Accounts API resource
-        /// </summary>
-        IMerchantAccountsApi MerchantAccounts { get; }
+    /// <summary>
+    /// Gets the Merchant Accounts API resource
+    /// </summary>
+    IMerchantAccountsApi MerchantAccounts { get; }
 
-        /// <summary>
-        /// Gets the Mandates API resource
-        /// </summary>
-        IMandatesApi Mandates { get; }
-    }
+    /// <summary>
+    /// Gets the Mandates API resource
+    /// </summary>
+    IMandatesApi Mandates { get; }
 }

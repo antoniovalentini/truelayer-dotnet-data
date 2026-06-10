@@ -1,9 +1,13 @@
 // Install .NET Core Global tools.
-#tool "dotnet:?package=dotnet-reportgenerator-globaltool&version=5.4.1"
+#tool "dotnet:?package=dotnet-reportgenerator-globaltool&version=5.4.9"
+#tool "dotnet:?package=dotnet-sonarscanner&version=11.0.0"
+
+#tool "dotnet:?package=dotnet-reportgenerator-globaltool&version=5.4.17"
 #tool "dotnet:?package=coveralls.net&version=4.0.1"
 
 // Install addins
-#addin nuget:?package=Cake.Coverlet&version=4.0.1
+#addin nuget:?package=Cake.Coverlet&version=5.1.1
+#addin nuget:?package=Cake.Sonar&version=5.0.0
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -18,6 +22,9 @@ var testFiles = "./test/**/*.csproj";
 var packages = "./artifacts/*.nupkg";
 
 uint coverageThreshold = 50;
+
+var sonarToken = EnvironmentVariable("SONAR_TOKEN");
+var sonarStarted = false;
 
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
@@ -51,6 +58,52 @@ Task("Clean")
     .Does(() =>
     {
         CleanDirectories(artifactsPath);
+    });
+
+Task("SonarBegin")
+    .WithCriteria(!string.IsNullOrEmpty(sonarToken))
+    .ContinueOnError()
+    .Does(() =>
+    {
+        try
+        {
+            Information("Starting SonarCloud analysis...");
+            SonarBegin(new SonarBeginSettings
+            {
+                Key = "TrueLayer_truelayer-dotnet",
+                Organization = "truelayer",
+                Url = "https://sonarcloud.io",
+                Exclusions = "test/**,examples/**,**/MvcExample/**,artifacts/**,docs/**,**/*.png,**/*.jpg,**/*.jpeg,**/*.gif,**/*.svg,**/*.ico,**/*.pem",
+                OpenCoverReportsPath = $"{coveragePath}/*.xml",
+                Token = sonarToken,
+                VsTestReportsPath = $"{artifactsPath}/*.TestResults.xml",
+                ArgumentCustomization = args => args
+                    .Append("/d:sonar.scm.disabled=true")
+                    .Append("/d:sonar.scanner.skipJreProvisioning=true")
+            });
+
+            // Verify the config file was created
+            var configFile = ".sonarqube/conf/SonarQubeAnalysisConfig.xml";
+            if (FileExists(configFile))
+            {
+                sonarStarted = true;
+                Information("SonarCloud analysis started successfully - config file created");
+            }
+            else
+            {
+                sonarStarted = false;
+                Warning("SonarCloud analysis may not have started correctly - config file not found");
+            }
+        }
+        catch (Exception ex)
+        {
+            sonarStarted = false;
+            Warning($"SonarCloud analysis start failed (non-blocking): {ex.Message}");
+            if (ex.InnerException != null)
+            {
+                Warning($"Inner exception: {ex.InnerException.Message}");
+            }
+        }
     });
 
 Task("Build")
@@ -98,7 +151,8 @@ Task("Pack")
         {
             Configuration = configuration,
             OutputDirectory = artifactsPath,
-            NoBuild = true
+            NoBuild = true,
+            IncludeSymbols = true
         };
 
         foreach (var file in GetFiles(packFiles))
@@ -114,6 +168,25 @@ Task("GenerateReports")
         {
             ArgumentCustomization = args => args.Append("-reporttypes:lcov;HTMLSummary;TextSummary;")
         });
+    });
+
+Task("SonarEnd")
+    .WithCriteria(() => sonarStarted)
+    .ContinueOnError()
+    .Does(() =>
+    {
+        try
+        {
+            SonarEnd(new SonarEndSettings
+            {
+                Token = sonarToken
+            });
+            Information("SonarCloud analysis completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Warning($"SonarCloud analysis end failed (non-blocking): {ex.Message}");
+        }
     });
 
 Task("PublishPackages")
@@ -140,7 +213,9 @@ Task("Default")
     .IsDependentOn("GenerateReports");
 
 Task("CI")
-    .IsDependentOn("Default");
+    .IsDependentOn("SonarBegin")
+    .IsDependentOn("Default")
+    .IsDependentOn("SonarEnd");
 
 Task("Publish")
     .IsDependentOn("CI")
@@ -190,7 +265,7 @@ public static class BuildContext
         context.Information("Printing Build Parameters...");
         context.Information("IsTag: {0}", IsTag);
         context.Information("NugetApiUrl: {0}", NugetApiUrl);
-        context.Information("NugetApiKey: {0}", NugetApiKey);
+        context.Information("NugetApiKey: {0}", string.IsNullOrEmpty(NugetApiKey) ? "<not set>" : "***");
         context.Information("ShouldPublishToNuget: {0}", ShouldPublishToNuget);
     }
 }

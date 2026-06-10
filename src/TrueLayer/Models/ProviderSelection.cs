@@ -1,10 +1,23 @@
-namespace TrueLayer.Models
+namespace TrueLayer.Models;
+
+/// <summary>
+/// Represents the configuration status for provider selection UI rendering.
+/// </summary>
+public enum ConfigurationStatus
 {
-    public enum ConfigurationStatus { Supported = 0, NotSupported = 1 };
+    /// <summary>
+    /// Provider selection UI is supported and can be rendered.
+    /// </summary>
+    Supported = 0,
 
     /// <summary>
-    /// Can the UI render a provider selection screen?
+    /// Provider selection UI is not supported.
     /// </summary>
-    /// <param name="Status"></param>
-    public record ProviderSelection(ConfigurationStatus Status);
-}
+    NotSupported = 1
+};
+
+/// <summary>
+/// Can the UI render a provider selection screen?
+/// </summary>
+/// <param name="Status"></param>
+public record ProviderSelection(ConfigurationStatus Status);
