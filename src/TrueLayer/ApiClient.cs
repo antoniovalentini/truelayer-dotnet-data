@@ -143,6 +143,15 @@ internal class ApiClient : IApiClient
             return new ApiResponse<TData>(problemDetails, httpResponse.StatusCode, traceId);
         }
 
+        // Some error responses (e.g. rate limiting) come back as OAuth-style errors instead of
+        // application/problem+json, e.g. {"error":"too_many_requests","error_description":"Too many requests.","error_details":{}}
+        var content = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
+        if (!string.IsNullOrWhiteSpace(content) && content.Contains("error_description"))
+        {
+            var problemDetails = ToProblemDetails(JsonSerializer.Deserialize<OAuthErrorResponse>(content, SerializerOptions.Default), content);
+            return new ApiResponse<TData>(problemDetails, httpResponse.StatusCode, traceId);
+        }
+
         return new ApiResponse<TData>(httpResponse.StatusCode, traceId);
     }
 
@@ -162,7 +171,43 @@ internal class ApiClient : IApiClient
             return new ApiResponse(problemDetails, httpResponse.StatusCode, traceId);
         }
 
+        // Some error responses (e.g. rate limiting) come back as OAuth-style errors instead of
+        // application/problem+json, e.g. {"error":"too_many_requests","error_description":"Too many requests.","error_details":{}}
+        var content = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
+        if (!string.IsNullOrWhiteSpace(content) && content.Contains("error_description"))
+        {
+            var problemDetails = ToProblemDetails(JsonSerializer.Deserialize<OAuthErrorResponse>(content, SerializerOptions.Default), content);
+            return new ApiResponse(problemDetails, httpResponse.StatusCode, traceId);
+        }
+
         return new ApiResponse(httpResponse.StatusCode, traceId);
+    }
+
+    private sealed record OAuthErrorResponse(string? Error, string? ErrorDescription, Dictionary<string, JsonElement>? ErrorDetails);
+
+    private static ProblemDetails ToProblemDetails(OAuthErrorResponse? error, string rawContent)
+    {
+        if (error is null)
+        {
+            return new ProblemDetails("error", "Unknown error", rawContent, null, null);
+        }
+
+        Dictionary<string, string[]>? errors = null;
+        if (error.ErrorDetails is { Count: > 0 } details)
+        {
+            errors = details.ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.ValueKind == JsonValueKind.Array
+                    ? kvp.Value.EnumerateArray().Select(e => e.GetString() ?? string.Empty).ToArray()
+                    : new[] { kvp.Value.ToString() });
+        }
+
+        return new ProblemDetails(
+            Type: error.Error ?? "error",
+            Title: error.Error ?? "Unknown error",
+            Detail: error.ErrorDescription,
+            Instance: null,
+            Errors: errors);
     }
 
     private async Task<TData> DeserializeJsonAsync<TData>(HttpResponseMessage httpResponse, string? traceId, CancellationToken cancellationToken)
